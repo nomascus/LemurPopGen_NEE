@@ -12,6 +12,17 @@ Cheirogaleus_medius_DLC_0606	42	14	84
 Cheirogaleus_medius_DLC_1636	44	14.66666667	88
 Cheirogaleus_medius_PUB_0029	43	14.33333333	86
 Cheirogaleus_sibreei_PUB_0032	46	15.33333333	92
+Daubentonia_madagascariensis_DLC_6201	38	12.66666667	76
+Daubentonia_madagascariensis_DLC_6202	38	12.66666667	76
+Daubentonia_madagascariensis_DLC_6261	42	14	84
+Daubentonia_madagascariensis_DLC_6451	39	13	78
+Daubentonia_madagascariensis_DLC_6452	43	14.33333333	86
+Daubentonia_madagascariensis_DLC_6453	38	12.66666667	76
+Daubentonia_madagascariensis_DLC_6454	40	13.33333333	80
+Daubentonia_madagascariensis_PD_0148	32	10.66666667	64
+Daubentonia_madagascariensis_PUB_0001	45	15	90
+Daubentonia_madagascariensis_PUB_0002	40	13.33333333	80
+Daubentonia_madagascariensis_PUB_0003	28	9.333333333	56
 Eulemur_albifrons_DLC_5547	39	13	78
 Eulemur_albifrons_DLC_5957	41	13.66666667	82
 Eulemur_albifrons_PD_0149	37	12.33333333	74
