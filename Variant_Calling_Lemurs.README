@@ -198,20 +198,73 @@ bash ../SCRIPTS/callabilityMask_v2.sh Metadata_callability_Lemuroidea_2022-02-28
 sub_array.py -n CalFil1 -u 1 -w "23:59:00" -a Metadata_callability_Lemuroidea_2022-02-28_part1.array
 sub_array.py -n CalFil2 -u 1 -w "23:59:00" -a Metadata_callability_Lemuroidea_2022-02-28_part2.array
 sub_array.py -n CallaREDO -u 2 -w "1-18:00:00" -r lowprio -a Metadata_callability_Lemuroidea_2022-02-28_part1_REDO.array # Only needed ~21 hours wit 2 cores
+sub_array.py -n CallaRedo -u 1 -w "23:59:00" -r highprio -a Metadata_callability_Lemuroidea_2022-02-28_part2_REDO.array
+
+# Make Callable depth files
+bash ../../SCRIPTS/CallableDepth.sh Samples_mLemcat.txt > CallableDepth_mLemcat.array
+sub_array.py -n CalDepth -u 2 -w "05:00:00" -a CallableDepth_mLemcat.array
+
+# Make lists of 30mb window gVCFs per ref and genus
+for i in `seq 0 80`; do while read line; do ls /scratch/devel/jorkin/STREPS/2021/gVCF/SINGLE/$line/${line}_${i}.raw.snps.indels.genotyped.g.vcf.gz; done < ../../sampleList_MicrocebusRef.txt > gvcflist_Microcebus_REF_${i}.txt; done
+
+for i in `seq 0 91`; do while read line; do ls /scratch/devel/jorkin/STREPS/2021/gVCF/SINGLE/$line/${line}_${i}.raw.snps.indels.genotyped.g.vcf.gz; done < ../../sampleList_PropithecusRef.txt > gvcflist_Propithecus_REF_${i}.txt; done
+
+for i in `seq 0 75`; do while read line; do ls /scratch/devel/jorkin/STREPS/2021/gVCF/SINGLE/$line/${line}_${i}.raw.snps.indels.genotyped.g.vcf.gz; done < ../../sampleList_Varecia.txt > gvcflist_Varecia_${i}.txt; done
+for i in `seq 0 75`; do while read line; do ls /scratch/devel/jorkin/STREPS/2021/gVCF/SINGLE/$line/${line}_${i}.raw.snps.indels.genotyped.g.vcf.gz; done < ../../sampleList_Lemur.txt > gvcflist_Lemur_${i}.txt; done
+for i in `seq 0 75`; do while read line; do ls /scratch/devel/jorkin/STREPS/2021/gVCF/SINGLE/$line/${line}_${i}.raw.snps.indels.genotyped.g.vcf.gz; done < ../../sampleList_HapaProlemur.txt > gvcflist_HapaProemur_${i}.txt; done
+for i in `seq 0 75`; do while read line; do ls /scratch/devel/jorkin/STREPS/2021/gVCF/SINGLE/$line/${line}_${i}.raw.snps.indels.genotyped.g.vcf.gz; done < ../../sampleList_Eulemur.txt > gvcflist_Eulemur_${i}.txt; done
 
 # merge gVCFs by 30mb windows, get unfiltered SNPs, split by individual, filter, intersect with callability, remerge into combined vcf
 
 bash /scratch/devel/jorkin/STREPS/2021/VCF/MERGED/gvcfs2filteredVcfs.sh Daubentonia sampleList_merge_Daubentonia.txt
 bash /scratch/devel/jorkin/STREPS/2021/VCF/MERGED/gvcfs2filteredVcfs.sh mLemCat2 sampleList_merge_mLemCat.txt
+bash ../gvcfs2filteredVcfs_Step1.sh Propithecus_REF ../sampleList_merge_PropithecusRef.txt > Propithecus_REF_gvcf2vcf_step1.array
+bash ../gvcfs2filteredVcfs_Step1.sh Lemur ../sampleList_merge_Lemur.txt > Lemur_gvcf2vcf_step1.array
+bash ../gvcfs2filteredVcfs_Step1.sh Eulemur ../sampleList_merge_Eulemur.txt  > Eulemur_gvcf2vcf_step1.array
+bash ../gvcfs2filteredVcfs_Step2.sh HapaProlemur ../sampleList_merge_HapaProlemur.txt > HapPro_gvcf2vcf_step2.array
+bash ../gvcfs2filteredVcfs_Step3.sh Lemur > Lemur_gvcf2vcf_step3.array
+bash ../gvcfs2filteredVcfs_Step3.sh Propithecus_REF > Propithecus_REF_gvcf2vcf_step3.array
+bash ../gvcfs2filteredVcfs_Step3.sh Eulemur > Eulemur_gvcf2vcf_step3.array
 
+	## mLemcat, Eulemur, HapaProlemur, Lemur, Varecia
 sub_array.py -n LCfilt -u 4 -w "23:59:00" -a mLemCat2_gvcfs2vcf.array		# 88 individuals, lots of SNPs, was getting cancelled for memory
 sub_array.py -n LCfilt -u 1 -w "01:00:00" -a Daubentonia_gvcfs2vcf.array	# 11 individuals, few SNPs 
+sub_array.py -n FiltVarecia -u 2 -w "02:00:00" -a Varecia_gvcf2vcf_step1.array	# Each job took about 30 minutes
+sub_array.py -n FiltHapPro -u 2 -w "3:00:00" -a HapaProlemur_gvcf2vcf_step1.array	# each took about 1.25 hours. Failed with 1 core
+sub_array.py -n FiltLem -u 2 -w "02:00:00" -a Lemur_gvcf2vcf_step1.array	# Each took about 22 minutes
+sub_array.py -n FiltEul -u 4 -w "16:00:00" -a Eulemur_gvcf2vcf_step1.array	# Only needd 3-4 hours
 
-# Needed to remerge the files in correct order. comment out some lines in batch script before rerunning
+sub_array.py -n MergeVarecia -u 1 -w "01:00:00" -a Varecia_gvcf2vcf_step2.array # Each job took about 5 minutes
+sub_array.py -n MerLem -u 1 -w "01:00:00" -a Lemur_gvcf2vcf_step2.array		# Each job took about 1 minute
+sub_array.py -n MerHap -u 1 -w "01:00:00" -a HapPro_gvcf2vcf_step2.array	# Each job took about 10 minutes
 
-bash /scratch/devel/jorkin/STREPS/2021/VCF/MERGED/gvcfs2filteredVcfs.sh mLemCat2 sampleList_merge_mLemCat.txt
-sort -nk3.69 mLemCat2_gvcf2vcf_MERGE.array >tmp; mv tmp mLemCat2_gvcf2vcf_MERGE.array
+sub_array.py -n CatVarecia -u 1 -w "01:00:00" -a Varecia_gvcf2vcf_step3.array
+sub_array.py -n CatLem -u 1 -w "01:00:00" -a Lemur_gvcf2vcf_step3.array		# 38443063
+sub_array.py -n CatHap -u 1 -w "02:00:00" -a HapaProlemur_gvcf2vcf_step3.array  # 38447307
+sub_array.py -n CatEulemur -u 1 -w "11:59:00" -r highprio -a Eulemur_gvcf2vcf_step3.array	#38502388
+
+	## PropithecusRef
+sub_array.py -n FiltProRef -u 3 -w "06:00:00" -a Propithecus_REF_gvcf2vcf_step1.array	# Only needed 3-4 hours
+sub_array.py -n mergeProp -u 1 -w "01:00:00" -a Propithecus_REF_gvcf2vcf_step2.array 	# 38501752 Each took about 30-45 minutes
+sub_array.py -n CatProp -u 1 -w "08:00:00" -r highprio -a Propithecus_REF_gvcf2vcf_step3.array #38502383
+sub_array.py -n sortPro -u 4 -w "08:59:00" -r highprio -a Propithecus_REF_gvcf2vcf_step4.array 
+
+	## MicrocebusRef
+sub_array.py -n FiltMicroRef -u 3 -w "06:00:00" -a Microcebus_REF_gvcf2vcf_step1.array # 38529767
 
 # Concatenate VCFs
-bash ../gvcfs2filteredVcfs_concat.poly.sh mLemCat2
-sub_array.py -n ConPmLemCat -u 1 -w "23:00:00" -r highprio -a  mLemCat2_gvcf2vcf_concatenate.poly.array
+bash ../gvcfs2filteredVcfs_Step3.sh mLemCat2 >  mLemCat2_gvcf2vcf_step3.array
+sub_array.py -n CatmLem2 -u 1 -w "23:59:00" -r highprio -a mLemCat2_gvcf2vcf_step3.array #38442339
+
+
+# Sort  mLemcat VCF
+
+bash ../gvcfs2filteredVcfs_Step4.sh HapaProlemur > HapaProlemur_gvcf2vcf_step4.array
+bash ../gvcfs2filteredVcfs_Step4.sh Lemur > Lemur_gvcf2vcf_step4.array
+bash ../gvcfs2filteredVcfs_Step4.sh mLemcat2 > mLemcat2_gvcfs2filteredVcfs_Step4.array
+bash ../gvcfs2filteredVcfs_Step4.sh mLemCat2 > mLemCat2_gvcf2vcf_step4.array
+
+sub_array.py -n SortHapa -r highprio -u 3 -w "04:00:00" -a HapaProlemur_gvcf2vcf_step4.array	# Took ~ 2 hours (13G file)
+sub_array.py -n SortLem -r highprio -u 2 -w "04:00:00" -a Lemur_gvcf2vcf_step4.array		# Took ~ 10 mintues (1.6G file)
+sub_array.py -n SortmLem -r highprio -u 8 -w "23:59:00" -a mLemCat2_gvcf2vcf_step4.array
+sub_array.py -n sortEul -u 4 -w "08:59:00" -r highprio -a Eulemur_gvcf2vcf_step4.array 
